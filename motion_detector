@@ -1,0 +1,38 @@
+import cv2
+
+import numpy as np
+
+capture = cv2.VideoCapture(0)
+
+
+fgbg = cv2.createBackgroundSubtractorMOG2(300,400,True)
+
+framecount =0
+
+while True:
+    ret, frame = capture.read()
+
+
+    if not ret:
+        break
+
+    framecount+=1
+
+    resizedframe = cv2.resize(frame, (0,0),fx=0.25,fy=0.25)
+
+    fgmask = fgbg.apply(resizedframe)
+
+    count  = np.count_nonzero(fgmask)
+
+    print( 'Frame:%d, Pixel_count : %d' %(framecount,count))
+
+    if framecount >1 and count > 300:
+        cv2.imshow('Frame ',resizedframe)
+        cv2.imshow('Mask',fgmask)
+        print ("Motion Detected : Test Pass")
+
+        k = cv2.waitKey(5) & 0xff
+        if k==27:
+            break
+capture.release()
+cv2.destroyAllWindows()
