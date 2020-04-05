@@ -1,0 +1,97 @@
+import pytesseract
+from pytesseract import Output
+import cv2
+import numpy as np
+path = r'C:/Users/91720/PycharmProjects/opencv/image1.png'
+img = cv2.imread(path)
+cv2.imshow('image', img)
+
+img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+    # Apply dilation and erosion to remove some noise
+kernel = np.ones((1, 1), np.uint8)
+img = cv2.dilate(img, kernel, iterations=1)
+noise_free_img = cv2.erode(img, kernel, iterations=1)
+thr_img = cv2.adaptiveThreshold(noise_free_img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 31, 2)
+
+''''
+def get_grayscale(image):
+    return cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+
+# noise removal
+def remove_noise(image):
+    return cv2.medianBlur(image, 5)
+
+
+# thresholding
+def thresholding(image):
+    return cv2.threshold(image, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
+
+
+# dilation
+def dilate(image):
+    kernel = np.ones((5, 5), np.uint8)
+    return cv2.dilate(image, kernel, iterations=1)
+
+
+# erosion
+def erode(image):
+    kernel = np.ones((5, 5), np.uint8)
+    return cv2.erode(image, kernel, iterations=1)
+
+
+# opening - erosion followed by dilation
+def opening(image):
+    kernel = np.ones((5, 5), np.uint8)
+    return cv2.morphologyEx(image, cv2.MORPH_OPEN, kernel)
+
+
+# canny edge detection
+def canny(image):
+    return cv2.Canny(image, 100, 200)
+
+
+# skew correction
+def deskew(image):
+    coords = np.column_stack(np.where(image > 0))
+    angle = cv2.minAreaRect(coords)[-1]
+    if angle < -45:
+        angle = -(90 + angle)
+    else:
+        angle = -angle
+        (h, w) = image.shape[:2]
+        center = (w // 2, h // 2)
+        M = cv2.getRotationMatrix2D(center, angle, 1.0)
+        rotated = cv2.warpAffine(image, M, (w, h), flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_REPLICATE)
+        return rotated
+
+
+
+grey=get_grayscale(img)
+noise = remove_noise(grey)
+dil=dilate(noise)
+can=canny(grey)
+
+#thr = thresholding(img)
+cv2.imshow('can', can)
+
+
+half = cv2.resize(can, (0, 0), fx = 0.1, fy = 0.1)
+cv2.imshow('img',img)'''
+pytesseract.pytesseract.tesseract_cmd = 'C:/Program Files/Tesseract-OCR/tesseract'
+#TESSDATA_PREFIX = 'C:/Program Files (x86)/Tesseract-OCR'
+
+
+
+
+
+d = pytesseract.image_to_data(thr_img, output_type=Output.DICT)
+n_boxes = len(d['level'])
+for i in range(n_boxes):
+    (x, y, w, h) = (d['left'][i], d['top'][i], d['width'][i], d['height'][i])
+    cv2.rectangle(thr_img, (x, y), (x + w, y + h), (0, 255, 0), 2)
+
+print(d['text'])
+cv2.imshow('thr_img', thr_img)
+cv2.waitKey(0)
